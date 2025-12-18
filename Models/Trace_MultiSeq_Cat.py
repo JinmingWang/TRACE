@@ -271,21 +271,21 @@ if __name__ == "__main__":
         embed_c=64,  # channels of mix embeddings
         expend=4,  # number of heads for attention
         dropout=0.0,  # dropout
-    ).cuda()
+    ).xpu()
 
-    linkage = Linkage(model.getFeatureShapes(512), 96, 500).cuda()
+    linkage = Linkage(model.getFeatureShapes(512), 96, 500).xpu()
 
     B = 2
     L = 512
 
-    x = torch.randn(B, 6, L, device="cuda")
-    prev_features = [torch.zeros(B, *shape, device="cuda") for shape in model.getStateShapes(L)]
+    x = torch.randn(B, 6, L, device="xpu")
+    prev_features = [torch.zeros(B, *shape, device="xpu") for shape in model.getStateShapes(L)]
 
     for f in prev_features:
         print(f.shape)
     print()
 
-    diffusion_t = torch.randint(0, 100, (B,), device="cuda")
+    diffusion_t = torch.randint(0, 100, (B,), device="xpu")
     eps, features = model(x, diffusion_t, prev_features)
     s_t = linkage(features, prev_features, diffusion_t)
 

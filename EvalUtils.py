@@ -46,7 +46,7 @@ def JSD(original_data: Tensor, generated_data: Tensor, n_grids: int = 64, normal
         # Python is insanely slow, so we use C to do this
         point_count_ptr = eval_c_lib.accumulateCount(lng_indices, lat_indices, n_grids, data.shape[0])
 
-        point_count = torch.tensor(np.frombuffer(point_count_ptr.contents, dtype=np.int32).reshape(n_grids, n_grids)).cuda().to(torch.float32)
+        point_count = torch.tensor(np.frombuffer(point_count_ptr.contents, dtype=np.int32).reshape(n_grids, n_grids)).xpu().to(torch.float32)
 
         # STEP 4. normalize
         if normalize:

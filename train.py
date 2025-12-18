@@ -7,8 +7,6 @@ from Utils import MovingAverage, loadModel, saveModel, MaskedMSE
 from Configs import *
 
 # Eval & Dataset
-from eval import recovery
-
 
 # torch imports
 import torch
@@ -31,9 +29,9 @@ def train():
         dataset = TaxiDataset(**dataset_args)
 
     # --- Model and Diffusion Configs ---
-    unet = Trace(**Trace_args).cuda().train()
-    linkage = Linkage(unet.getStateShapes(TRAJ_LEN), **link_args).cuda().train()
-    embedder = Embedder(embed_dim).cuda().train() if dataset_name == "apartments" else None
+    unet = Trace(**Trace_args).xpu().train()
+    linkage = Linkage(unet.getStateShapes(TRAJ_LEN), **link_args).xpu().train()
+    embedder = Embedder(embed_dim).xpu().train() if dataset_name == "apartments" else None
     # loadModel("Runs/2024-07-15_05-26-26/last.pth", unet=unet, linkage=linkage, embedder=embedder)
     diff_manager = DDIM(**diffusion_args)
 
@@ -61,10 +59,11 @@ def train():
         file.write("Model:\n")
         file.write(str(unet))
 
-    batch_manager = BatchManager(
+    batch_manager_class = get_batch_manager_class()
+    batch_manager = batch_manager_class(
         ddm=diff_manager,
         skip_step=diffusion_args["skip_step"],
-        device="cuda",
+        device="xpu",
         num_epochs=epochs,
         batch_size=batch_size,
         traj_len=TRAJ_LEN,
@@ -82,7 +81,7 @@ def train():
                                      factor=lr_reduce_factor,
                                      patience=int(lr_reduce_patience),
                                      min_lr=1e-6,
-                                     verbose=True)
+                                     )
 
     # --- Training Loop ---
 
@@ -140,15 +139,20 @@ def train():
                 lr_scheduler.step(float(mov_avg_loss))
 
             if global_it % 1000 == 0:
-                recovery_loss, fig = recovery(diff_manager, unet, linkage, embedder)
-                writer.add_scalar("Recovery Loss", recovery_loss, global_it)
-                writer.add_figure("Recovery Figure", fig, global_it)
+                try:
+                    from eval import recovery
+                except ModuleNotFoundError as e:
+                    print(f"Skip recovery eval: missing dependency ({e})")
+                    recovery = None
 
-                if recovery_loss < best_recovery_loss:
-                    best_recovery_loss = recovery_loss
-                    saveModel(save_dir + "best.pth", unet=unet, linkage=linkage, embedder=embedder)
+                if recovery is not None:
+                    recovery_loss, fig = recovery(diff_manager, unet, linkage, embedder)
+                    writer.add_scalar("Recovery Loss", recovery_loss, global_it)
+                    writer.add_figure("Recovery Figure", fig, global_it)
+
+                    if recovery_loss < best_recovery_loss:
+                        best_recovery_loss = recovery_loss
+                        saveModel(save_dir + "best.pth", unet=unet, linkage=linkage, embedder=embedder)
 
 if __name__ == "__main__":
     train()
-
-

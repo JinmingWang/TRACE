@@ -15,7 +15,7 @@ class DDIM:
                  min_beta: float = 0.0001,
                  max_beta: float = 0.002,
                  max_diffusion_step: int = 100,
-                 device: str = 'cuda',
+                 device: str = 'xpu',
                  scale_mode: Literal["linear", "quadratic", "log"] = "linear",
                  skip_step=1):
 

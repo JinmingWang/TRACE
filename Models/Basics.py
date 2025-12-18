@@ -17,7 +17,7 @@ class Swish(nn.Module):
 
 
 class NumberEmbedder(nn.Module):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('xpu' if torch.xpu.is_available() else 'cpu')
 
     def __init__(self, max_num: int, hidden_dim: int = 256, embed_dim: int = 128) -> None:
         super().__init__()

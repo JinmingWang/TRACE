@@ -6,7 +6,7 @@ from rich.status import Status
 
 class TaxiDataset(data.Dataset):
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('xpu' if torch.xpu.is_available() else 'cpu')
 
 
     def __init__(self, max_len: int, load_path: str):

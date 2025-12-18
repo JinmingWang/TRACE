@@ -12,17 +12,17 @@ dataset.resetEraseRate(erase_rate)
 
 
 query_len = int(l * erase_rate)
-batch_query_len = torch.ones(B, device="cuda", dtype=torch.long) * query_len
+batch_query_len = torch.ones(B, device="xpu", dtype=torch.long) * query_len
 observe_len = l - query_len
-batch_observe_len = torch.ones(B, device="cuda", dtype=torch.long) * observe_len
+batch_observe_len = torch.ones(B, device="xpu", dtype=torch.long) * observe_len
 
 def getData():
-    batch_loc_0 = torch.zeros(B, 2, L, device="cuda", dtype=torch.float32)
-    batch_loc_guess = torch.zeros(B, 2, L, device="cuda", dtype=torch.float32)
-    batch_time = torch.zeros(B, 1, L, device="cuda", dtype=torch.float32)
-    batch_mask = torch.zeros(B, 1, L, device="cuda", dtype=torch.float32)
-    batch_loc_mean = torch.zeros(B, 2, 1, device="cuda", dtype=torch.float32)
-    batch_meta = torch.zeros(B, 4, L, device="cuda", dtype=torch.long)
+    batch_loc_0 = torch.zeros(B, 2, L, device="xpu", dtype=torch.float32)
+    batch_loc_guess = torch.zeros(B, 2, L, device="xpu", dtype=torch.float32)
+    batch_time = torch.zeros(B, 1, L, device="xpu", dtype=torch.float32)
+    batch_mask = torch.zeros(B, 1, L, device="xpu", dtype=torch.float32)
+    batch_loc_mean = torch.zeros(B, 2, 1, device="xpu", dtype=torch.float32)
+    batch_meta = torch.zeros(B, 4, L, device="xpu", dtype=torch.long)
     for j in range(B):
         # traj_0, _, _, _, _, mask, _, loc_guess = dataset[j]
         traj_0, mask, loc_guess, loc_mean, meta = dataset[j]

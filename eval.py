@@ -31,7 +31,7 @@ def recovery(ddm, unet, linkage, embedder, verbose=False):
 
     s_T = []
     for shape in unet.getStateShapes(TRAJ_LEN):
-        s_T.append(torch.zeros(B, *shape, dtype=torch.float32, device="cuda"))
+        s_T.append(torch.zeros(B, *shape, dtype=torch.float32, device="xpu"))
 
     if dataset_name == "apartments":
         batch_data = torch.load("Dataset/test_20240711_B100_l512_E05.pth")
