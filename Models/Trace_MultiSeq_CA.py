@@ -292,5 +292,5 @@ if __name__ == "__main__":
         print(f.shape)
 
     # length: 16 ~ 64
-    torch.save(model.state_dict(), 'TrajWeaver7.pth')
+    torch.save(model.state_dict(), 'Trace.pth')
     torch.save(Linkage(model.getStateShapes(512), 500).state_dict(), "linkage.pth")
